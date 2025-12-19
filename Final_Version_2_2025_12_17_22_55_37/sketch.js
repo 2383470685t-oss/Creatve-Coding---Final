@@ -15,27 +15,24 @@ let url = 'https://api.nytimes.com/svc/mostpopular/v2/viewed/7.json?api-key=5HA6
 function preload() {
   faceMesh = ml5.faceMesh({ maxFaces: 1, refineLandmarks: false, flipped: false });
   soundFormats('mp3');
-  // 确保文件名正确，不要有空格
   bgMusic = loadSound('Audio 1.mp3'); 
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   
-  // --- 尝试强制自动播放 ---
-  // 这里不再等待点击，直接尝试启动音频上下文
+
   getAudioContext().resume(); 
   
   if (bgMusic) { 
-    bgMusic.setVolume(0); // 先静音
-    bgMusic.loop();       // 尝试循环播放
+    bgMusic.setVolume(0); 
+    bgMusic.loop();      
   }
-  // -----------------------
 
   loadJSON(url, gotData);
   
   video = createCapture(VIDEO);
-  video.size(640, 480); // 降低分辨率以保证流畅度
+  video.size(640, 480); 
   video.hide();
   
   faceMesh.detectStart(video, results => faces = results);
@@ -45,34 +42,26 @@ function setup() {
 function draw() {
   background(0);
 
-  // --- 音量控制逻辑 ---
-  // 只要检测到人脸，音量目标就是 1，否则是 0
+
   let targetVol = (faces.length > 0) ? 1.0 : 0.0;
   
-  // 平滑过渡音量
+
   currentVol = lerp(currentVol, targetVol, 0.05);
   
   if (bgMusic) {
-    // 再次尝试唤醒：有些浏览器需要在第一帧唤醒
+
     if (getAudioContext().state !== 'running') {
       getAudioContext().resume();
     }
     bgMusic.setVolume(currentVol);
   }
-  // -------------------
 
-  // 数据保护：如果没有新闻数据，显示 Loading
-  if (newsItems.length === 0) {
-    fill(255); textAlign(CENTER); textSize(20);
-    text("Loading Data...", width/2, height/2);
-    return; 
-  }
 
   if (faces.length > 0) {
     let face = faces[0];
     let nose = face.keypoints[1];
     
-    // 映射坐标
+
     let x = map(nose.x, 0, video.width, width, 0) + 60;
     let y = map(nose.y, 0, video.height, 0, height) - 200; 
 
@@ -97,7 +86,7 @@ function draw() {
       
       opacity = constrain(opacity, 0, 255);
       
-      // 数据保护
+  
       if(newsItems[currentIdx]) {
         drawCard(newsItems[currentIdx], x, y, opacity);
       }
@@ -106,7 +95,7 @@ function draw() {
     blinkLock = isBlinking;
 
   } else {
-    // 没人脸时
+
     showIntro = true;
     fadeState = 0;
     opacity = 255;
@@ -150,7 +139,7 @@ function drawIntro(x, y) {
   textFont('Helvetica Light'); 
   textStyle(NORMAL);
   textSize(24);
-  textAlign(LEFT, CENTER);
+  textAlign(LEFT, TOP);
   let alpha = map(sin(frameCount * 0.1), -1, 1, 100, 255);
   fill(255, alpha); 
   text("Blink your eyes", x, y);
