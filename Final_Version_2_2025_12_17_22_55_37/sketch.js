@@ -179,13 +179,26 @@ function drawFloatingBackground() {
 
 function gotData(data) {
   if (!data.results) return;
-  for (let r of data.results) {
+
+  for (let i = 0; i < data.results.length; i++) {
     let img = null;
-    if (r.media?.[0]?.['media-metadata']) {
-      let meta = r.media[0]['media-metadata'];
-      img = loadImage(meta[meta.length-1].url);
+
+    // We have to type 'data.results[i]' every time we want to check the data
+    if (data.results[i].media && 
+        data.results[i].media[0] && 
+        data.results[i].media[0]['media-metadata']) {
+      
+      let meta = data.results[i].media[0]['media-metadata'];
+      img = loadImage(meta[meta.length - 1].url);
     }
-    newsItems.push({ title: r.title, abstract: r.abstract, img: img });
-    offsetsX.push(random(1000)); offsetsY.push(random(1000));
+
+    newsItems.push({ 
+      title: data.results[i].title, 
+      abstract: data.results[i].abstract, 
+      img: img 
+    });
+
+    offsetsX.push(random(1000)); 
+    offsetsY.push(random(1000));
   }
 }
